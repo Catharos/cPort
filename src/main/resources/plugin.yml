@@ -1,0 +1,3 @@
+name: cPort
+main: net.catharos.port.PortPlugin
+version: 1.0.0-SNAPSHOT
