@@ -61,50 +61,53 @@ public class PortPlugin extends JavaPlugin {
 		getInstance().getLogger().log(lvl, msg);
 	}
 	
+	public static void signError(String msg) {
+		log(ChatColor.DARK_RED + "Error creating sign: " + ChatColor.GOLD + msg);
+	}
+	
 	public static PortPlugin getInstance() {
 		return instance;
 	}
 	
-	public PortSign getOrCreatePortSignAt( Location loc ) {
-		Block sB = loc.getWorld().getBlockAt(loc);
-		if(sB.getType() != Material.SIGN && sB.getType() != Material.SIGN_POST) {
-			String msg = "No sign found (Block is of type " + sB.getType().name() +")!";
-			PortPlugin.log(ChatColor.DARK_RED + "Error creating sign: " + ChatColor.GOLD + msg);
-		}
-			
-		return getOrCreatePortSignAt(sB, false);
-	}
-	
-	public PortSign getOrCreatePortSignAt( Block block, boolean isSign ) {
+	public PortSign getOrCreatePortSignAt( Block block ) {
+		if(block == null) return null;
+		
 		PortSign sign = getSignMap().get(block.getLocation());
 		
-		if(sign != null) return sign;
-		
-		try {
-			Sign signBlock = (Sign) block.getState();
-
-			if(!isSign && !signBlock.getLine(0).equalsIgnoreCase("[cPort]"))
-				throw new Exception("No valid cPort sign found!");
-
-			String worldName = signBlock.getLine(1);
-			World world = Bukkit.getServer().getWorld(worldName);
-			if(world == null) throw new Exception("No world with name " + worldName + " found!");
-
-			String targetString = signBlock.getLine(2);
-			Location target = LocationUtil.getLocationFromString(world, targetString);
-			if(target == null ) throw new Exception("Invalid location: " + targetString);
-
-			sign = new PortSign(target);
-
-			String scriptName = signBlock.getLine(3);
-			if(scriptName != null && !scriptName.isEmpty()) sign.setScript(scriptName);
-
-			// Save the sign
-			PortPlugin.getInstance().getSignMap().put(block.getLocation(), sign);
-		} catch( Exception e ) {
-			PortPlugin.log(ChatColor.DARK_RED + "Error creating sign: " + ChatColor.GOLD + e.getMessage());
+		if(sign == null) {
+			if(block.getType() != Material.SIGN && block.getType() != Material.SIGN_POST) {
+				signError("No sign found (Block is of type " + block.getType().name() +")!");
+				return null;
+			}
+			
+			sign = createSignAt( block.getLocation(), ((Sign) block.getState()).getLines());
 		}
 		
 		return sign;
+	}
+	
+	public PortSign createSignAt( Location loc, String[] lines ) {
+		try {
+			String worldName = lines[1];
+			World world = Bukkit.getServer().getWorld(worldName);
+			if(world == null) throw new Exception("No world with name " + worldName + " found!");
+
+			String targetString = lines[2];
+			Location target = LocationUtil.getLocationFromString(world, targetString);
+			if(target == null ) throw new Exception("Invalid location: " + targetString);
+
+			PortSign sign = new PortSign(target);
+
+			String scriptName = lines[3];
+			if(scriptName != null && !scriptName.isEmpty()) sign.setScript(scriptName);
+
+			// Save the sign
+			PortPlugin.getInstance().getSignMap().put(loc, sign);
+			return sign;
+			
+		} catch( Exception e ) {
+			signError(e.getMessage());
+			return null;
+		}
 	}
 }

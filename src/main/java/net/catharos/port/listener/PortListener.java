@@ -4,6 +4,7 @@ import net.catharos.port.PortPlugin;
 import net.catharos.port.PortSign;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -36,7 +37,8 @@ public class PortListener implements Listener {
 		Player player = event.getPlayer();
 		
 		// Get sign
-		PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(loc.subtract(0, 2, 0));
+		Block signBlock = block.getWorld().getBlockAt(loc.subtract(0, 2, 0));
+		PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(signBlock);
 		if(sign == null) {
 			player.sendMessage(ChatColor.DARK_RED + "[Error] " + ChatColor.GOLD + "This table leads to nowhere!");
 			return;
@@ -70,7 +72,7 @@ public class PortListener implements Listener {
 				}
 				
 				// Create the sign
-				PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(event.getBlock(), true);
+				PortSign sign = PortPlugin.getInstance().createSignAt(loc, event.getLines());
 				if(sign == null) {
 					throw new Exception("Error creating sign. Please check console!");
 				}
@@ -79,7 +81,11 @@ public class PortListener implements Listener {
 				
 			} catch( Exception e ) {
 				event.getPlayer().sendMessage(ChatColor.DARK_RED + "[Error] " + ChatColor.GOLD + e.getMessage());
-				event.getBlock().breakNaturally();
+				
+				Block block = event.getBlock();
+				if(event.getPlayer().getGameMode() == GameMode.CREATIVE) block.setType(Material.AIR);
+				else block.breakNaturally();
+					
 				event.setCancelled(true);
 			}
 		}
