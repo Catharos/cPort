@@ -1,5 +1,6 @@
 package net.catharos.port.listener;
 
+import java.util.logging.Level;
 import net.catharos.port.PortPlugin;
 import net.catharos.port.PortSign;
 import org.bukkit.Bukkit;
@@ -8,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -28,41 +30,49 @@ public class InteractionListener implements Listener {
 		if(block.getType() != Material.ENCHANTMENT_TABLE && block.getData() != 1) return;
 		
 		Location loc = block.getLocation();
+		Player player = event.getPlayer();
 		
 		PortSign sign = PortPlugin.getInstance().getSignMap().get(loc);
 		
 		// Get sign
 		if(sign == null) {
-			Block sB = block.getWorld().getBlockAt(loc.add(0, -2, 0));
-			if(!(sB instanceof Sign)) return;
-			
-			Sign signBlock = (Sign) sB;
-			
-			if(!signBlock.getLine(0).equalsIgnoreCase("[cPort]")) return;
-			
-			String worldName = signBlock.getLine(1);
-			World world = Bukkit.getServer().getWorld(worldName);
-			if(world == null) return;
-			
-			Location target = getLocationFromString(world, signBlock.getLine(2));
-			if(target == null) return;
-			
-			sign = new PortSign(target);
-			
-			String scriptName = signBlock.getLine(3);
-			if(scriptName != null && !scriptName.isEmpty()) sign.setScript(scriptName);
-			
-			// Save the sign
-			PortPlugin.getInstance().getSignMap().put(loc, sign);
+			try {
+				Block sB = block.getWorld().getBlockAt(loc.add(0, -2, 0));
+				if(!(sB instanceof Sign)) throw new Exception("No sign found!");
+
+				Sign signBlock = (Sign) sB;
+
+				if(!signBlock.getLine(0).equalsIgnoreCase("[cPort]")) throw new Exception("No valid cPort sign found!");
+
+				String worldName = signBlock.getLine(1);
+				World world = Bukkit.getServer().getWorld(worldName);
+				if(world == null) throw new Exception("No world with name " + worldName + " found!");
+
+				Location target = getLocationFromString(world, signBlock.getLine(2));
+				if(target == null ) throw new Exception("Invalid location: " + signBlock.getLine(2));
+				
+				sign = new PortSign(target);
+
+				String scriptName = signBlock.getLine(3);
+				if(scriptName != null && !scriptName.isEmpty()) sign.setScript(scriptName);
+					
+				// Save the sign
+				PortPlugin.getInstance().getSignMap().put(loc, sign);
+			} catch( Exception e ) {
+				PortPlugin.log("Error porting player '" + player + "': " + e.getMessage());
+				
+				return;
+			}
 		}
 		
 		// Off we go!
-		event.getPlayer().teleport(sign.getTarget());
+		player.teleport(sign.getTarget());
 		// TODO add denizen script activation
 	}
 	
 	private Location getLocationFromString( World world, String location ) {
 		String[] locs = location.split(",");
+		
 		if(locs.length != 3) return null;
 
 		int x = Integer.parseInt(locs[0].trim());
