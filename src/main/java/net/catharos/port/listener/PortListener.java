@@ -48,25 +48,28 @@ public class PortListener implements Listener {
 		if(event.isCancelled()) return;
 		
 		if(event.getLine(0).equalsIgnoreCase("[cPort]")) {
-			if(!event.getPlayer().hasPermission("cport.create")) {
-				event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to create such a sign!");
-				event.setCancelled(true);
-				return;
-			}
-			
-			Block table = event.getBlock().getLocation().getWorld().getBlockAt(event.getBlock().getLocation().add(0, 2, 0));
-			if(!(table.getType() != Material.ENCHANTMENT_TABLE)) {
-				event.getPlayer().sendMessage(ChatColor.DARK_RED + "Missing enchantment table (Place it 2 blocks above)!");
-				event.setCancelled(true);
-				return;
-			}
-			
-			PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(event.getBlock().getLocation());
-			
-			if(sign != null) {
-				event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "Success! Linked to: " + sign.getTarget());
-			} else {
-				event.getPlayer().sendMessage(ChatColor.DARK_RED + "Error creating sign. Please check console!");
+			try {
+				// Check for permisisons
+				if(!event.getPlayer().hasPermission("cport.create")) {
+					throw new Exception("You don't have permission to create such a sign!");
+				}
+				
+				// Check for table
+				Block table = event.getBlock().getLocation().getWorld().getBlockAt(event.getBlock().getLocation().add(0, 2, 0));
+				if(table.getType() != Material.ENCHANTMENT_TABLE) {
+					throw new Exception("Missing enchantment table (Place it 2 blocks above)!");
+				}
+				
+				// Create the sign
+				PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(event.getBlock().getLocation());
+				if(sign == null) {
+					throw new Exception("Error creating sign. Please check console!");
+				} else {
+					event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "Success! Linked to: " + sign.getTarget());
+				}
+				
+			} catch( Exception e ) {
+				event.getPlayer().sendMessage(ChatColor.DARK_RED + "[Error] " + ChatColor.GOLD + e.getMessage());
 				event.setCancelled(true);
 			}
 		}
