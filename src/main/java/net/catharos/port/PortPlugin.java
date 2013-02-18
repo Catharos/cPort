@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import net.catharos.port.listener.PortListener;
 import net.catharos.port.util.LocationUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -65,18 +66,25 @@ public class PortPlugin extends JavaPlugin {
 	}
 	
 	public PortSign getOrCreatePortSignAt( Location loc ) {
-		PortSign sign = getSignMap().get(loc);
+		Block sB = loc.getWorld().getBlockAt(loc);
+		if(sB.getType() != Material.SIGN && sB.getType() != Material.SIGN_POST) {
+			String msg = "No sign found (Block is of type " + sB.getType().name() +")!";
+			PortPlugin.log(ChatColor.DARK_RED + "Error creating sign: " + ChatColor.GOLD + msg);
+		}
+			
+		return getOrCreatePortSignAt(sB, false);
+	}
+	
+	public PortSign getOrCreatePortSignAt( Block block, boolean isSign ) {
+		PortSign sign = getSignMap().get(block.getLocation());
 		
 		if(sign != null) return sign;
 		
 		try {
-			Block sB = loc.getWorld().getBlockAt(loc);
-			if(sB.getType() != Material.SIGN && sB.getType() != Material.SIGN_POST)
-				throw new Exception("No sign found (Block is of type " + sB.getType().name() +")!");
+			Sign signBlock = (Sign) block.getState();
 
-			Sign signBlock = (Sign) sB.getState();
-
-			if(!signBlock.getLine(0).equalsIgnoreCase("[cPort]")) throw new Exception("No valid cPort sign found!");
+			if(!isSign && !signBlock.getLine(0).equalsIgnoreCase("[cPort]"))
+				throw new Exception("No valid cPort sign found!");
 
 			String worldName = signBlock.getLine(1);
 			World world = Bukkit.getServer().getWorld(worldName);
@@ -92,9 +100,9 @@ public class PortPlugin extends JavaPlugin {
 			if(scriptName != null && !scriptName.isEmpty()) sign.setScript(scriptName);
 
 			// Save the sign
-			PortPlugin.getInstance().getSignMap().put(loc, sign);
+			PortPlugin.getInstance().getSignMap().put(block.getLocation(), sign);
 		} catch( Exception e ) {
-			PortPlugin.log("Error creating sign: " + e.getMessage());
+			PortPlugin.log(ChatColor.DARK_RED + "Error creating sign: " + ChatColor.GOLD + e.getMessage());
 		}
 		
 		return sign;

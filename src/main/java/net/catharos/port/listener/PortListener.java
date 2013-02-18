@@ -55,6 +55,8 @@ public class PortListener implements Listener {
 		if(event.isCancelled()) return;
 		
 		if(event.getLine(0).equalsIgnoreCase("[cPort]")) {
+			Location loc = event.getBlock().getLocation();
+			
 			try {
 				// Check for permisisons
 				if(!event.getPlayer().hasPermission("cport.create")) {
@@ -62,21 +64,22 @@ public class PortListener implements Listener {
 				}
 				
 				// Check for table
-				Block table = event.getBlock().getLocation().getWorld().getBlockAt(event.getBlock().getLocation().add(0, 2, 0));
+				Block table = loc.getWorld().getBlockAt(loc.add(0, 2, 0));
 				if(table.getType() != Material.ENCHANTMENT_TABLE) {
 					throw new Exception("Missing enchantment table (Place it 2 blocks above)!");
 				}
 				
 				// Create the sign
-				PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(event.getBlock().getLocation());
+				PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(event.getBlock(), true);
 				if(sign == null) {
 					throw new Exception("Error creating sign. Please check console!");
-				} else {
-					event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "Success! Linked to: " + sign.getTarget());
 				}
+				
+				event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "Success! Linked to: " + sign.getTarget());
 				
 			} catch( Exception e ) {
 				event.getPlayer().sendMessage(ChatColor.DARK_RED + "[Error] " + ChatColor.GOLD + e.getMessage());
+				event.getBlock().breakNaturally();
 				event.setCancelled(true);
 			}
 		}
