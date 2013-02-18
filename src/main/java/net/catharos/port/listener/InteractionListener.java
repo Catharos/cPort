@@ -29,6 +29,9 @@ public class InteractionListener implements Listener {
 		Block block = event.getClickedBlock();
 		if(block.getType() != Material.ENCHANTMENT_TABLE && block.getData() != 1) return;
 		
+		// Cancel the event
+		event.setCancelled(true);
+		
 		Location loc = block.getLocation();
 		Player player = event.getPlayer();
 		
@@ -38,7 +41,7 @@ public class InteractionListener implements Listener {
 		if(sign == null) {
 			try {
 				Block sB = block.getWorld().getBlockAt(loc.add(0, -2, 0));
-				if(!(sB instanceof Sign)) throw new Exception("No sign found!");
+				if(!(sB instanceof Sign)) throw new Exception("No sign underneath found!");
 
 				Sign signBlock = (Sign) sB;
 
@@ -59,7 +62,7 @@ public class InteractionListener implements Listener {
 				// Save the sign
 				PortPlugin.getInstance().getSignMap().put(loc, sign);
 			} catch( Exception e ) {
-				PortPlugin.log("Error porting player '" + player + "': " + e.getMessage());
+				PortPlugin.log("Error porting player " + player.getName() + ": " + e.getMessage());
 				
 				return;
 			}
