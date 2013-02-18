@@ -1,7 +1,9 @@
 package net.catharos.port.listener;
 
+import java.util.Map;
 import net.catharos.port.PortPlugin;
 import net.catharos.port.PortSign;
+import net.catharos.port.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -11,6 +13,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -44,16 +47,17 @@ public class PortListener implements Listener {
 			}
 
 			// Off we go!
-			player.teleport(sign.getTarget().add(0.5, 0.75, 0.5));
-			player.addPotionEffect( new PotionEffect( PotionEffectType.BLINDNESS, 2 * 20, 0 ), true );
-			player.addPotionEffect( new PotionEffect( PotionEffectType.CONFUSION, 6 * 20, 0 ), true );
+			Location tp = LocationUtil.findNearestAirSpaceAround(sign.getTarget(), 3);
+			player.teleport(tp.add(0.5, 0, 0.5));
+			player.addPotionEffect( new PotionEffect( PotionEffectType.BLINDNESS, 4 * 20, 0 ), true );
+			player.addPotionEffect( new PotionEffect( PotionEffectType.CONFUSION, 4 * 20, 0 ), true );
 
 			// TODO add denizen script activation
 		}
 	}
 	
 	@EventHandler
-	public void sign(SignChangeEvent event) {
+	public void place(SignChangeEvent event) {
 		if(event.isCancelled()) return;
 		
 		if(event.getLine(0).equalsIgnoreCase("[cPort]")) {
@@ -88,6 +92,21 @@ public class PortListener implements Listener {
 					
 				event.setCancelled(true);
 			}
+		}
+	}
+	
+	@EventHandler
+	public void destroy(BlockBreakEvent event) {
+		if(event.isCancelled()) return;
+		
+		Block block = event.getBlock();
+		if(block.getType() != Material.SIGN || block.getType() != Material.SIGN_POST) return;
+		
+		Map<Location, PortSign> signs = PortPlugin.getInstance().getSignMap();
+
+		if(signs.containsKey(block.getLocation())) {
+			signs.remove(block.getLocation());
+			event.getPlayer().sendMessage(ChatColor.DARK_GREEN + "Successfully removed cPort sign");
 		}
 	}
 }
