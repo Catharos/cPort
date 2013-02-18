@@ -28,28 +28,28 @@ public class PortListener implements Listener {
 		if(event.isCancelled()) return;
 		
 		Block block = event.getClickedBlock();
-		if(block.getType() != Material.ENCHANTMENT_TABLE && block.getData() != 1) return;
-		
-		// Cancel the event
-		event.setCancelled(true);
-		
-		Location loc = block.getLocation();
-		Player player = event.getPlayer();
-		
-		// Get sign
-		Block signBlock = block.getWorld().getBlockAt(loc.subtract(0, 2, 0));
-		PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(signBlock);
-		if(sign == null) {
-			player.sendMessage(ChatColor.DARK_RED + "[Error] " + ChatColor.GOLD + "This table leads to nowhere!");
-			return;
+		if(block.getType() == Material.ENCHANTMENT_TABLE && block.getData() == 1) {
+			// Cancel the event
+			event.setCancelled(true);
+
+			Location loc = block.getLocation();
+			Player player = event.getPlayer();
+
+			// Get sign
+			Block signBlock = block.getWorld().getBlockAt(loc.subtract(0, 2, 0));
+			PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(signBlock);
+			if(sign == null) {
+				player.sendMessage(ChatColor.DARK_RED + "[Error] " + ChatColor.GOLD + "This table leads to nowhere!");
+				return;
+			}
+
+			// Off we go!
+			player.teleport(sign.getTarget());
+			player.addPotionEffect( new PotionEffect( PotionEffectType.BLINDNESS, 4 * 20, 0 ), true );
+			player.addPotionEffect( new PotionEffect( PotionEffectType.CONFUSION, 4 * 20, 0 ), true );
+
+			// TODO add denizen script activation
 		}
-		
-		// Off we go!
-		player.teleport(sign.getTarget());
-		player.addPotionEffect( new PotionEffect( PotionEffectType.BLINDNESS, 4 * 20, 0 ), true );
-		player.addPotionEffect( new PotionEffect( PotionEffectType.CONFUSION, 4 * 20, 0 ), true );
-		
-		// TODO add denizen script activation
 	}
 	
 	@EventHandler
