@@ -1,27 +1,49 @@
 package net.catharos.port;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
-import net.catharos.port.storage.TravelStorage;
+import net.catharos.port.listener.InteractionListener;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
+
 
 public class PortPlugin extends JavaPlugin {
 	protected static PortPlugin instance;
 	
-	protected TravelStorage travels;
+	// ---- Listeners ----
+	protected InteractionListener interactionListener;
+	
+	// ---- Storages -----
+	protected Map<Location, PortSign> signs;
 	
 	
 	@Override
 	public void onEnable() {
 		instance = this;
 		
-		travels = new TravelStorage(this);
+		// Initialize lists
+		signs = new HashMap<Location, PortSign>();
+		
+		// Register listeners
+		interactionListener = new InteractionListener(this);
+		
+		// Finish
+		log("Enabled!");
 	}
 	
 	@Override
-	public void onDisable() {}
+	public void onDisable() {
+		// Free RAM
+		signs.clear();
+	}
 	
-	public TravelStorage getTravelStorage() {
-		return travels;
+	public InteractionListener getInteractionListener() {
+		return interactionListener;
+	}
+	
+	public Map<Location, PortSign> getSignMap() {
+		return signs;
 	}
 	
 	public static void log(String msg) {
