@@ -7,6 +7,7 @@ import net.catharos.port.listener.PortListener;
 import net.catharos.port.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -70,7 +71,7 @@ public class PortPlugin extends JavaPlugin {
 		
 		try {
 			Block sB = loc.getWorld().getBlockAt(loc);
-			if(!(sB instanceof Sign))
+			if(sB.getType() != Material.SIGN || sB.getType() != Material.SIGN_POST)
 				throw new Exception("No sign underneath found (Block is of type " + sB.getType().name() +")!");
 
 			Sign signBlock = (Sign) sB;
