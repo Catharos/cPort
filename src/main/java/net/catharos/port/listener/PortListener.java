@@ -44,9 +44,9 @@ public class PortListener implements Listener {
 			}
 
 			// Off we go!
-			player.teleport(sign.getTarget());
-			player.addPotionEffect( new PotionEffect( PotionEffectType.BLINDNESS, 4 * 20, 0 ), true );
-			player.addPotionEffect( new PotionEffect( PotionEffectType.CONFUSION, 4 * 20, 0 ), true );
+			player.teleport(sign.getTarget().add(0.5, 0.75, 0.5));
+			player.addPotionEffect( new PotionEffect( PotionEffectType.BLINDNESS, 2 * 20, 0 ), true );
+			player.addPotionEffect( new PotionEffect( PotionEffectType.CONFUSION, 6 * 20, 0 ), true );
 
 			// TODO add denizen script activation
 		}
