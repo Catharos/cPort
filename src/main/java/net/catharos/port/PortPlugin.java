@@ -71,8 +71,8 @@ public class PortPlugin extends JavaPlugin {
 		
 		try {
 			Block sB = loc.getWorld().getBlockAt(loc);
-			if(sB.getType() != Material.SIGN || sB.getType() != Material.SIGN_POST)
-				throw new Exception("No sign underneath found (Block is of type " + sB.getType().name() +")!");
+			if(sB.getType() != Material.SIGN && sB.getType() != Material.SIGN_POST)
+				throw new Exception("No sign found (Block is of type " + sB.getType().name() +")!");
 
 			Sign signBlock = (Sign) sB;
 
