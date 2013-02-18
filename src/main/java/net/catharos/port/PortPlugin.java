@@ -74,7 +74,7 @@ public class PortPlugin extends JavaPlugin {
 			if(sB.getType() != Material.SIGN && sB.getType() != Material.SIGN_POST)
 				throw new Exception("No sign found (Block is of type " + sB.getType().name() +")!");
 
-			Sign signBlock = (Sign) sB;
+			Sign signBlock = (Sign) sB.getState();
 
 			if(!signBlock.getLine(0).equalsIgnoreCase("[cPort]")) throw new Exception("No valid cPort sign found!");
 

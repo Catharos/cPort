@@ -13,6 +13,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 
 public class PortListener implements Listener {
@@ -35,10 +37,15 @@ public class PortListener implements Listener {
 		
 		// Get sign
 		PortSign sign = PortPlugin.getInstance().getOrCreatePortSignAt(loc.subtract(0, 2, 0));
-		if(sign == null) return;
+		if(sign == null) {
+			player.sendMessage(ChatColor.DARK_RED + "[Error] " + ChatColor.GOLD + "This table leads to nowhere!");
+			return;
+		}
 		
 		// Off we go!
 		player.teleport(sign.getTarget());
+		player.addPotionEffect( new PotionEffect( PotionEffectType.BLINDNESS, 4 * 20, 0 ), true );
+		player.addPotionEffect( new PotionEffect( PotionEffectType.CONFUSION, 4 * 20, 0 ), true );
 		
 		// TODO add denizen script activation
 	}
