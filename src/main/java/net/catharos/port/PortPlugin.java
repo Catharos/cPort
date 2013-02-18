@@ -3,8 +3,13 @@ package net.catharos.port;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import net.catharos.port.listener.InteractionListener;
+import net.catharos.port.listener.PortListener;
+import net.catharos.port.util.LocationUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -12,7 +17,7 @@ public class PortPlugin extends JavaPlugin {
 	protected static PortPlugin instance;
 	
 	// ---- Listeners ----
-	protected InteractionListener interactionListener;
+	protected PortListener portListener;
 	
 	// ---- Storages -----
 	protected Map<Location, PortSign> signs;
@@ -26,7 +31,7 @@ public class PortPlugin extends JavaPlugin {
 		signs = new HashMap<Location, PortSign>();
 		
 		// Register listeners
-		interactionListener = new InteractionListener(this);
+		portListener = new PortListener(this);
 		
 		// Finish
 		log("Enabled!");
@@ -38,8 +43,8 @@ public class PortPlugin extends JavaPlugin {
 		signs.clear();
 	}
 	
-	public InteractionListener getInteractionListener() {
-		return interactionListener;
+	public PortListener getPortListener() {
+		return portListener;
 	}
 	
 	public Map<Location, PortSign> getSignMap() {
@@ -56,5 +61,41 @@ public class PortPlugin extends JavaPlugin {
 	
 	public static PortPlugin getInstance() {
 		return instance;
+	}
+	
+	public PortSign getOrCreatePortSignAt( Location loc ) {
+		PortSign sign = getSignMap().get(loc);
+		
+		if(sign != null) return sign;
+		
+		try {
+			Block sB = loc.getWorld().getBlockAt(loc);
+			if(!(sB instanceof Sign))
+				throw new Exception("No sign underneath found (Block is of type " + sB.getType().name() +")!");
+
+			Sign signBlock = (Sign) sB;
+
+			if(!signBlock.getLine(0).equalsIgnoreCase("[cPort]")) throw new Exception("No valid cPort sign found!");
+
+			String worldName = signBlock.getLine(1);
+			World world = Bukkit.getServer().getWorld(worldName);
+			if(world == null) throw new Exception("No world with name " + worldName + " found!");
+
+			String targetString = signBlock.getLine(2);
+			Location target = LocationUtil.getLocationFromString(world, targetString);
+			if(target == null ) throw new Exception("Invalid location: " + targetString);
+
+			sign = new PortSign(target);
+
+			String scriptName = signBlock.getLine(3);
+			if(scriptName != null && !scriptName.isEmpty()) sign.setScript(scriptName);
+
+			// Save the sign
+			PortPlugin.getInstance().getSignMap().put(loc, sign);
+		} catch( Exception e ) {
+			PortPlugin.log("Error creating sign: " + e.getMessage());
+		}
+		
+		return sign;
 	}
 }

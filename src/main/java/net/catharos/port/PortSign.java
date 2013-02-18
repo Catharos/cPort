@@ -13,9 +13,8 @@ public class PortSign {
 		this.target = target;
 	}
 	
-	public Location getTarget() { return target;
+	public Location getTarget() { return target; }
 	
-	}
 	public String getScript() { return scriptName; }
 	public void setScript( String name ) { this.scriptName = name; }
 	
