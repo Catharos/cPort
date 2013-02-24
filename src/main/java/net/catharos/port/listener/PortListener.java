@@ -3,6 +3,7 @@ package net.catharos.port.listener;
 import java.util.Map;
 import net.catharos.port.PortPlugin;
 import net.catharos.port.PortSign;
+import net.catharos.port.TableTeleportationEvent;
 import net.catharos.port.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -47,10 +48,17 @@ public class PortListener implements Listener {
 			}
 
 			// Off we go!
-			Location tp = LocationUtil.findNearestAirSpaceAround(sign.getTarget(), 3);
-			player.teleport(tp.add(0.5, 0, 0.5));
-			player.addPotionEffect( new PotionEffect( PotionEffectType.BLINDNESS, 4 * 20, 0 ), true );
-			player.addPotionEffect( new PotionEffect( PotionEffectType.CONFUSION, 4 * 20, 0 ), true );
+			Location tp = LocationUtil.findNearestAirSpaceAround(sign.getTarget(), 3).add(0.5, 0, 0.5);
+			
+			TableTeleportationEvent e = new TableTeleportationEvent(tp, player);
+			Bukkit.getServer().getPluginManager().callEvent(e);
+
+			if(!e.isCancelled()) {
+				player.teleport(e.getTargetLocation());
+				
+				player.addPotionEffect( new PotionEffect( PotionEffectType.BLINDNESS, 4 * 20, 0 ), true );
+				player.addPotionEffect( new PotionEffect( PotionEffectType.CONFUSION, 4 * 20, 0 ), true );
+			}
 
 			// TODO add denizen script activation
 		}
