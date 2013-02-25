@@ -3,6 +3,8 @@ package net.catharos.port;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import net.catharos.lib.cLib;
+import net.catharos.lib.plugin.Plugin;
 import net.catharos.port.listener.PortListener;
 import net.catharos.port.util.LocationUtil;
 import org.bukkit.Bukkit;
@@ -12,12 +14,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.plugin.java.JavaPlugin;
 
 
-public class PortPlugin extends JavaPlugin {
-	protected static PortPlugin instance;
-	
+public class PortPlugin extends Plugin {
 	// ---- Listeners ----
 	protected PortListener portListener;
 	
@@ -26,14 +25,17 @@ public class PortPlugin extends JavaPlugin {
 	
 	
 	@Override
-	public void onEnable() {
-		instance = this;
-		
+	public void onEnable() {		
 		// Initialize lists
 		signs = new HashMap<Location, PortSign>();
 		
 		// Register listeners
 		portListener = new PortListener(this);
+		
+		// Register commands
+		if(!cLib.getInstance().getCommandManager().registerCommands(new PortCommands())) {
+			getLogger().severe("Failed to register commands, usage will be disabled!");
+		}
 		
 		// Finish
 		log("Enabled!");
@@ -43,6 +45,10 @@ public class PortPlugin extends JavaPlugin {
 	public void onDisable() {
 		// Free RAM
 		signs.clear();
+	}
+	
+	public static PortPlugin getInstance() {
+		return (PortPlugin) getInstance();
 	}
 	
 	public PortListener getPortListener() {
@@ -63,10 +69,6 @@ public class PortPlugin extends JavaPlugin {
 	
 	public static void signError(String msg) {
 		log(ChatColor.DARK_RED + "Error creating sign: " + ChatColor.GOLD + msg);
-	}
-	
-	public static PortPlugin getInstance() {
-		return instance;
 	}
 	
 	public PortSign getOrCreatePortSignAt( Block block ) {
@@ -102,7 +104,7 @@ public class PortPlugin extends JavaPlugin {
 			if(scriptName != null && !scriptName.isEmpty()) sign.setScript(scriptName);
 
 			// Save the sign
-			PortPlugin.getInstance().getSignMap().put(loc, sign);
+			getSignMap().put(loc, sign);
 			return sign;
 			
 		} catch( Exception e ) {

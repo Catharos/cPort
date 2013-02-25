@@ -1,3 +1,9 @@
 name: cPort
 main: net.catharos.port.PortPlugin
 version: 1.0.0-SNAPSHOT
+depends: [cLib]
+
+commands:
+  port:
+    description: Main cPort command
+    usage: /<command> ?
