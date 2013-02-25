@@ -17,6 +17,8 @@ import org.bukkit.block.Sign;
 
 
 public class PortPlugin extends Plugin {
+	private static PortPlugin instance;
+	
 	// ---- Listeners ----
 	protected PortListener portListener;
 	
@@ -48,7 +50,7 @@ public class PortPlugin extends Plugin {
 	}
 	
 	public static PortPlugin getInstance() {
-		return (PortPlugin) getPlugin();
+		return PortPlugin.instance;
 	}
 	
 	public PortListener getPortListener() {
