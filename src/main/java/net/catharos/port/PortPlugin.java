@@ -48,7 +48,7 @@ public class PortPlugin extends Plugin {
 	}
 	
 	public static PortPlugin getInstance() {
-		return (PortPlugin) getInstance();
+		return (PortPlugin) getPlugin();
 	}
 	
 	public PortListener getPortListener() {
