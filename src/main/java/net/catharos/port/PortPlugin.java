@@ -27,7 +27,9 @@ public class PortPlugin extends Plugin {
 	
 	
 	@Override
-	public void onEnable() {		
+	public void onEnable() {
+		PortPlugin.instance = this;
+		
 		// Initialize lists
 		signs = new HashMap<Location, PortSign>();
 		
