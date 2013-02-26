@@ -23,10 +23,6 @@ import org.bukkit.potion.PotionEffectType;
 
 
 public class PortListener implements Listener {
-	public PortListener(JavaPlugin plugin) {
-		Bukkit.getServer().getPluginManager().registerEvents(this, plugin);
-	}
-	
 	@EventHandler
 	public void interact(PlayerInteractEvent event) {
 		if(event.isCancelled()) return;

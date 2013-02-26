@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import net.catharos.lib.cLib;
+import net.catharos.lib.events.Events;
 import net.catharos.lib.plugin.Plugin;
 import net.catharos.port.listener.PortListener;
 import net.catharos.port.util.LocationUtil;
@@ -19,9 +20,6 @@ import org.bukkit.block.Sign;
 public class PortPlugin extends Plugin {
 	private static PortPlugin instance;
 	
-	// ---- Listeners ----
-	protected PortListener portListener;
-	
 	// ---- Storages -----
 	protected Map<Location, PortSign> signs;
 	
@@ -34,7 +32,7 @@ public class PortPlugin extends Plugin {
 		signs = new HashMap<Location, PortSign>();
 		
 		// Register listeners
-		portListener = new PortListener(this);
+		Events.registerListener(new PortListener(), this);
 		
 		// Register commands
 		if(!cLib.getCommandManager().registerCommands(new PortCommands())) {
@@ -53,10 +51,6 @@ public class PortPlugin extends Plugin {
 	
 	public static PortPlugin getInstance() {
 		return PortPlugin.instance;
-	}
-	
-	public PortListener getPortListener() {
-		return portListener;
 	}
 	
 	public Map<Location, PortSign> getSignMap() {
