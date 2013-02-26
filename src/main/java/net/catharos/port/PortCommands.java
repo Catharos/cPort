@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 
 
 public class PortCommands {
-	@Command(name = "port clearcache", permission = "cport.clearcache")
+	@Command(name = "port clearcache", permission = "cport.clearcache", consoleCmd = true)
 	public void clearCache(CommandSender cs, String[] args) {
 		int amnt = PortPlugin.getInstance().getSignMap().size();
 		PortPlugin.getInstance().getSignMap().clear();

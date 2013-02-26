@@ -38,7 +38,7 @@ public class PortPlugin extends Plugin {
 		
 		// Register commands
 		if(!cLib.getInstance().getCommandManager().registerCommands(new PortCommands())) {
-			getLogger().severe("Failed to register commands, usage will be disabled!");
+			getLogger().warning("Failed to register commands, usage will be disabled!");
 		}
 		
 		// Finish
